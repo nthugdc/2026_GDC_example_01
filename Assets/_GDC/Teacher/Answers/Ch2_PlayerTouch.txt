@@ -58,6 +58,13 @@ TODO 2-E ─ 離開感應板（OnTriggerExit2D）
     ⚠ Stay 每幀都跑，所以裡面不要放很重的運算，也不要在裡面加分
       （會變成「站著不動就一直得分」）。要計時就像上面那樣累加 Time.deltaTime。
 
+    ⚠ 剛體休眠會讓 Stay 停止觸發
+      Rigidbody 2D 靜止超過 Physics2D.timeToSleep（預設 0.5 秒）會自動休眠，
+      休眠中的剛體不再發出 OnTriggerStay2D。症狀就是「站著不動計時卡在 0.5 秒，
+      稍微走動又開始跳」。
+      本教材已經把玩家的 Sleeping Mode 設成 Never Sleep 避開這個問題。
+      想示範的話，把它改回 Start Awake 再站上感應板，一看就懂。
+
 
 other 是什麼？為什麼可以改到對方的顏色？
 -----------------------------------------

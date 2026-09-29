@@ -13,6 +13,12 @@ using UnityEngine;
 ///
 ///   要收得到這些事件，對方的 Collider 2D 必須勾選 Is Trigger。
 ///
+///   ⚠ Stay 有一個很容易踩到的坑：
+///     Rigidbody 2D 靜止超過 0.5 秒會自動「休眠」以節省效能，
+///     而休眠中的剛體不會再發出 Stay 事件 —— 站著不動計時就卡住了，
+///     稍微走動又恢復。本專案已經把玩家的 Sleeping Mode 設成 Never Sleep。
+///     （Rigidbody 2D → Sleeping Mode，可以改回 Start Awake 親眼看一次）
+///
 /// ═══ 參數 other 是什麼？ ═══
 ///
 ///   other 的型別是 Collider2D，它是「碰到我的那個東西身上的碰撞器元件」。

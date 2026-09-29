@@ -96,6 +96,11 @@ namespace GDCBuild
             rb.linearDamping          = 0f;
             rb.gravityScale           = 2.5f;   // 重一點，跳起來比較俐落不會飄
 
+            // Rigidbody2D 靜止超過 Physics2D.timeToSleep（預設 0.5 秒）就會進入休眠，
+            // 休眠的剛體不再發出 OnTriggerStay2D —— 第 2 章站在感應板上不動時，
+            // 計時會在 0.5 秒左右卡住，稍微走動又恢復。關掉休眠才不會有這個問題。
+            rb.sleepMode              = RigidbodySleepMode2D.NeverSleep;
+
             var col = go.AddComponent<CapsuleCollider2D>();
             col.size      = new Vector2(1f, 1.5f);
             col.direction = CapsuleDirection2D.Vertical;
