@@ -13,8 +13,10 @@ public class PlayerMoveBasic : MonoBehaviour
     public float jumpForce = 11f;
 
     [Header("盪繩時的操控（第 5 章用得到）")]
-    [Tooltip("掛在繩子上時，左右鍵改成「加速度」而不是直接設定速度")]
-    public float swingAccel = 18f;
+    [Tooltip("掛在繩子上時，左右鍵改成「加速度」而不是直接設定速度。太大會像裝了火箭，建議 5 ~ 10")]
+    public float swingAccel = 7f;
+    [Tooltip("左右鍵最多只能把水平速度推到這麼快，超過就不再加力（擺盪本身的速度不受限制）")]
+    public float swingMaxAssist = 8f;
 
     [Header("地面偵測")]
     public float feetOffset = 0.6f;
@@ -52,7 +54,13 @@ public class PlayerMoveBasic : MonoBehaviour
             // 掛在繩子上時只「加速」，沒按鍵就完全不碰速度。
             // 如果照平常那樣每幀寫入速度，等於把擺盪累積的動能一直歸零，
             // 盪起來會又慢又沒力。
-            if (moveInput != 0f)
+            //
+            // 但也不能無限加速，不然按著不放就變成裝了火箭。
+            // 只有「往你要推的方向還不夠快」時才繼續加力 ——
+            // 這樣既能像盪鞦韆那樣配合節奏助推，也能反向煞車，
+            // 而擺盪本身盪出來的速度不會被這個上限影響。
+            float speedInPushDir = moveInput * rb.linearVelocity.x;
+            if (moveInput != 0f && speedInPushDir < swingMaxAssist)
                 rb.linearVelocityX += moveInput * swingAccel * Time.fixedDeltaTime;
         }
         else
