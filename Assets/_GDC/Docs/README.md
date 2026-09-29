@@ -106,6 +106,20 @@ Inspector 裡也一樣，找不到 Drag 是正常的，它現在叫 **Linear Dam
 
 > 看解答不丟臉。看懂了以後把自己的檔案關掉重寫一次，那才是真的學會。
 
+### 特例：畫面上的中文全變成方框（□□□）
+
+這不是你寫錯，是 **clone 時沒有裝 Git LFS**，中文字型檔沒有真的下載下來。
+
+在專案資料夾開終端機跑這兩行，然後回 Unity 等它重新匯入：
+
+```bash
+git lfs install
+git lfs pull
+```
+
+確認方式：`Assets/_GDC/Art/Fonts/GDC_CJK.ttf` 應該是**約 4 MB**，
+只有 1 KB 左右就代表還沒下載到。詳見專案根目錄的 [README](../../../README.md)。
+
 ---
 
 ## 專案結構

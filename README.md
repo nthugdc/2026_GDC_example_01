@@ -4,11 +4,55 @@ NTHU GDC（清華大學遊戲創作社）2D 物理練習專案 — 給**完全�
 
 七個章節，帶你認識 Unity 2D 的四個核心：**2D 物理**、**Raycast**、**Tag**、**Layer**。
 
-## 快速開始
+## 取得專案
+
+> ⚠️ **請先安裝 Git LFS，再 clone。**
+> 本專案的中文字型與圖檔存放在 Git LFS。沒裝就 clone 的話，
+> 拉下來的會是幾行文字的「指標檔」而不是真正的檔案，
+> Unity 會載不到字型，**場景裡的中文看板會整片變成方框（□□□）**。
+
+```bash
+# 1. 安裝 Git LFS（每台電腦只需要做一次）
+git lfs install
+
+# 2. 下載專案
+git clone https://github.com/nthugdc/2026_GDC_example_01.git
+```
+
+### 怎麼裝 Git LFS
+
+| 系統 | 做法 |
+|---|---|
+| Windows | 安裝 [Git for Windows](https://git-scm.com/download/win)（已內含 LFS），然後跑 `git lfs install` |
+| macOS | `brew install git-lfs` |
+| Ubuntu / Debian | `sudo apt install git-lfs` |
+
+### 已經 clone 了才發現忘記裝？
+
+不用重新 clone，補救兩行就好：
+
+```bash
+git lfs install
+git lfs pull
+```
+
+### 怎麼確認 LFS 有正常運作
+
+```bash
+git lfs ls-files
+```
+
+有列出 `GDC_CJK.ttf` 之類的檔案就對了。
+或者直接看 `Assets/_GDC/Art/Fonts/GDC_CJK.ttf` 的檔案大小 —
+應該是 **約 4 MB**；如果只有 1 KB 左右，代表那是指標檔，LFS 沒生效。
+
+## 開啟專案
 
 1. 用 **Unity 6000.3.10f1** 開啟本專案
 2. 打開 `Assets/_GDC/Scenes/Ch0_Sandbox.unity`
 3. 按 ▶
+
+> 第一次開啟會花幾分鐘匯入資源，屬正常現象。
 
 ## 📖 完整講義
 
