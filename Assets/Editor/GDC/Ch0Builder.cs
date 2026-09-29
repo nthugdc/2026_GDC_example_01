@@ -15,10 +15,10 @@ namespace GDCBuild
 【重要】要先「停止播放」再改參數
 播放中改的數值，一停止就會被還原。
 
-1. 按 ■ 停止播放
+1. 按工具列中間的「停止」鍵
 2. 在 Hierarchy 點選「Ball」
 3. 在 Inspector 改 Rigidbody 2D 的參數
-4. 再按 ▶ 播放，看結果
+4. 再按「播放」鍵，看結果
 
 ・Linear Damping（空氣阻力）
 　預設 2，太大了衝不過缺口
@@ -33,8 +33,8 @@ Collider 2D 的 Material 欄位。";
         {
             var scene = GDCSceneKit.NewScene(new Vector2(0f, 0.5f), 6.5f);
 
-            GDCSceneKit.Board("GuideBoard", BoardText,
-                              new Vector2(-7.2f, 1.2f), new Vector2(8.2f, 10.2f), 4.0f);
+            // 上緣對齊畫面頂端附近，高度由文字自動撐開
+            GDCSceneKit.BoardTopAt("GuideBoard", BoardText, -7.2f, 6.4f, 8.2f, 4.0f);
 
             BuildPuzzle(answer);
             BuildBounceDemo();

@@ -58,6 +58,9 @@ namespace GDCBuild
             Debug.Log("[GDC] 所有章節重建完成");
         }
 
+        [MenuItem(M + "工具/檢查場景文字（缺字與看板溢出）", false, 200)]
+        public static void Validate() => GDCValidate.Run();
+
         [MenuItem(M + "建置/全部重建（含專案設定與美術）", false, 110)]
         public static void BuildAll()
         {

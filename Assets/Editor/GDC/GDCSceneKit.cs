@@ -158,9 +158,14 @@ namespace GDCBuild
             return tmp;
         }
 
-        /// <summary>帶底板的引導看板。底板與文字各自獨立，避免縮放互相影響。</summary>
+        public const float BoardPadding = 0.5f;
+
+        /// <summary>
+        /// 帶底板的引導看板。底板與文字各自獨立，避免縮放互相影響。
+        /// size.x 是寬度，size.y 只是「最低高度」—— 底板一定會撐到蓋得住文字為止。
+        /// </summary>
         public static GuideBoard Board(string name, string content, Vector2 center, Vector2 size,
-                                       float fontSize = 0.62f)
+                                       float fontSize = 4f)
         {
             var root = new GameObject(name);
             root.transform.position = center;
@@ -169,9 +174,8 @@ namespace GDCBuild
             var bg = Shape(name + "_BG", "Square", GDCPalette.Board, center, size, OrderBoard - 1);
             bg.transform.SetParent(root.transform, true);
 
-            const float pad = 0.5f;
             var tmp = Text(name + "_Text", content, center,
-                           new Vector2(size.x - pad * 2f, size.y - pad * 2f),
+                           new Vector2(size.x - BoardPadding * 2f, size.y - BoardPadding * 2f),
                            fontSize, GDCPalette.Text, OrderBoard);
             tmp.transform.SetParent(root.transform, true);
 
@@ -180,7 +184,33 @@ namespace GDCBuild
             board.textColor = GDCPalette.Text;
             board.fontSize  = fontSize;
             board.Apply();
+
+            FitBoardHeight(board, size);
             return board;
+        }
+
+        /// <summary>
+        /// 量出文字實際需要的高度，把底板撐到蓋得住為止。
+        /// 手填高度很容易漏算（換行、字型 fallback 都會影響），一律用量的。
+        /// </summary>
+        public static float FitBoardHeight(GuideBoard board, Vector2 size)
+        {
+            var tmp = board.GetComponentInChildren<TMP_Text>(true);
+            if (tmp == null) return size.y;
+
+            float innerWidth = size.x - BoardPadding * 2f;
+
+            // 先給一個超高的框讓 TMP 自由排版，才量得到真正需要的高度
+            tmp.rectTransform.sizeDelta = new Vector2(innerWidth, 1000f);
+            tmp.ForceMeshUpdate();
+
+            float height = Mathf.Max(size.y, tmp.preferredHeight + BoardPadding * 2f);
+            tmp.rectTransform.sizeDelta = new Vector2(innerWidth, height - BoardPadding * 2f);
+
+            var bg = board.transform.Find(board.name + "_BG");
+            if (bg != null) bg.localScale = new Vector3(size.x, height, 1f);
+
+            return height;
         }
 
         /// <summary>
@@ -188,27 +218,30 @@ namespace GDCBuild
         /// 看板放在世界座標的話，攝影機一跟著玩家跑，看板就會飄到關卡中間擋住畫面。
         /// 高度依文字實際需要自動撐開，不用手動填。
         /// </summary>
+        /// <summary>
+        /// 世界座標的看板，用「上緣 Y」定位，高度自動往下長。
+        /// 適合第 0 章這種攝影機不會移動、看板擺在旁邊空地的場景。
+        /// </summary>
+        public static GuideBoard BoardTopAt(string name, string content,
+                                            float centerX, float topY, float width, float fontSize)
+        {
+            var size = new Vector2(width, 0f);
+            var board = Board(name, content, new Vector2(centerX, topY), size, fontSize);
+            float height = FitBoardHeight(board, size);
+            board.transform.position = new Vector2(centerX, topY - height * 0.5f);
+            return board;
+        }
+
         public static GuideBoard BoardOnCamera(string name, string content,
                                                float fontSize = 3.4f, bool bottom = true)
         {
-            const float pad = 0.5f;
-
             var cam = MainCamera();
             float halfH = cam.orthographicSize;
             float halfW = halfH * 16f / 9f;
             float width = halfW * 2f * 0.94f;
 
-            var board = Board(name, content, Vector2.zero, new Vector2(width, 2f), fontSize);
-
-            // 量出文字真正需要多高，再把底板撐到那個高度
-            var tmp = board.GetComponentInChildren<TMP_Text>(true);
-            tmp.rectTransform.sizeDelta = new Vector2(width - pad * 2f, 1000f);
-            tmp.ForceMeshUpdate();
-            float height = tmp.preferredHeight + pad * 2f;
-            tmp.rectTransform.sizeDelta = new Vector2(width - pad * 2f, height - pad * 2f);
-
-            var bg = board.transform.Find(name + "_BG");
-            if (bg != null) bg.localScale = new Vector3(width, height, 1f);
+            var board = Board(name, content, Vector2.zero, new Vector2(width, 0f), fontSize);
+            float height = FitBoardHeight(board, new Vector2(width, 0f));
 
             float y = bottom ? -halfH + height * 0.5f + 0.2f
                              :  halfH - height * 0.5f - 0.2f;
