@@ -12,9 +12,13 @@ namespace GDCBuild
 目標：讓黃球滾進右邊的籃子。
 這一章不用寫程式，只要調參數！
 
-1. 在 Hierarchy 點選「Ball」
-2. 在 Inspector 找 Rigidbody 2D
-3. 改參數 → 按 R 重玩 → 看結果
+【重要】要先「停止播放」再改參數
+播放中改的數值，一停止就會被還原。
+
+1. 按 ■ 停止播放
+2. 在 Hierarchy 點選「Ball」
+3. 在 Inspector 改 Rigidbody 2D 的參數
+4. 再按 ▶ 播放，看結果
 
 ・Linear Damping（空氣阻力）
 　預設 2，太大了衝不過缺口
@@ -92,7 +96,7 @@ Collider 2D 的 Material 欄位。";
         // ── 彈跳材質觀察區 ──────────────────────────────────────────────
         static void BuildBounceDemo()
         {
-            GDCSceneKit.Text("BounceDemoTitle", "彈跳材質觀察區：三顆球的 Material 不同，按 R 重玩",
+            GDCSceneKit.Text("BounceDemoTitle", "彈跳材質觀察區：三顆球的 Material 不同，按 R 可重看一次",
                              new Vector2(4.5f, -1.1f), new Vector2(11f, 0.7f),
                              4f, GDCPalette.TextDim, GDCSceneKit.OrderObject,
                              TMPro.TextAlignmentOptions.Center);

@@ -20,6 +20,8 @@ public class Ch5_Grapple : MonoBehaviour
     public LayerMask grappleLayers;
     [Tooltip("按 W 收繩的速度")]
     public float ropeSpeed = 6f;
+    [Tooltip("繩子最短只能收到這麼短。太短會整個人貼在鉤點上，就盪不動了")]
+    public float minRopeLength = 2.5f;
 
     DistanceJoint2D joint;
     LineRenderer line;
@@ -45,7 +47,7 @@ public class Ch5_Grapple : MonoBehaviour
         // 按住 W 收繩，把自己往鉤點拉近
         var kb = Keyboard.current;
         if (joint.enabled && kb != null && kb.wKey.isPressed)
-            joint.distance = Mathf.Max(1.2f, joint.distance - ropeSpeed * Time.deltaTime);
+            joint.distance = Mathf.Max(minRopeLength, joint.distance - ropeSpeed * Time.deltaTime);
 
         DrawRope();
     }

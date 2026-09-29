@@ -10,6 +10,7 @@ public class Ch5_Grapple_Answer : MonoBehaviour
     public float maxDistance = 13f;
     public LayerMask grappleLayers;
     public float ropeSpeed = 6f;
+    public float minRopeLength = 2.5f;
 
     DistanceJoint2D joint;
     LineRenderer line;
@@ -34,7 +35,7 @@ public class Ch5_Grapple_Answer : MonoBehaviour
 
         var kb = Keyboard.current;
         if (joint.enabled && kb != null && kb.wKey.isPressed)
-            joint.distance = Mathf.Max(1.2f, joint.distance - ropeSpeed * Time.deltaTime);
+            joint.distance = Mathf.Max(minRopeLength, joint.distance - ropeSpeed * Time.deltaTime);
 
         DrawRope();
     }

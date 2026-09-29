@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// 畫面左上角的資訊列（章節名稱、分數、狀態、操作提示）。
+/// 畫面右上角的資訊列（章節名稱、分數、狀態、操作提示）。
 /// 直接掛在攝影機底下的文字物件上，不需要 Canvas。
 /// </summary>
 [ExecuteAlways]
@@ -17,7 +17,10 @@ public class HudDisplay : MonoBehaviour
 
     void OnEnable() { label = GetComponent<TMP_Text>(); }
 
-    void Update()
+    void Update() { Refresh(); }
+
+    /// <summary>重新組裝要顯示的內容。建置場景時也會呼叫一次。</summary>
+    public void Refresh()
     {
         if (label == null) label = GetComponent<TMP_Text>();
         if (label == null) return;

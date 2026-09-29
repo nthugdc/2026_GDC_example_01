@@ -165,7 +165,8 @@ namespace GDCBuild
             var root = new GameObject(name);
             root.transform.position = center;
 
-            var bg = Shape(name + "_BG", "RoundedSquare", GDCPalette.Board, center, size, OrderBoard - 1);
+            // 底板一律用純正方形：圓角圖被非等比放大時，四角會被拉成橢圓
+            var bg = Shape(name + "_BG", "Square", GDCPalette.Board, center, size, OrderBoard - 1);
             bg.transform.SetParent(root.transform, true);
 
             const float pad = 0.5f;
@@ -179,6 +180,41 @@ namespace GDCBuild
             board.textColor = GDCPalette.Text;
             board.fontSize  = fontSize;
             board.Apply();
+            return board;
+        }
+
+        /// <summary>
+        /// 把引導看板釘在畫面上緣或下緣，跟著攝影機移動。
+        /// 看板放在世界座標的話，攝影機一跟著玩家跑，看板就會飄到關卡中間擋住畫面。
+        /// 高度依文字實際需要自動撐開，不用手動填。
+        /// </summary>
+        public static GuideBoard BoardOnCamera(string name, string content,
+                                               float fontSize = 3.4f, bool bottom = true)
+        {
+            const float pad = 0.5f;
+
+            var cam = MainCamera();
+            float halfH = cam.orthographicSize;
+            float halfW = halfH * 16f / 9f;
+            float width = halfW * 2f * 0.94f;
+
+            var board = Board(name, content, Vector2.zero, new Vector2(width, 2f), fontSize);
+
+            // 量出文字真正需要多高，再把底板撐到那個高度
+            var tmp = board.GetComponentInChildren<TMP_Text>(true);
+            tmp.rectTransform.sizeDelta = new Vector2(width - pad * 2f, 1000f);
+            tmp.ForceMeshUpdate();
+            float height = tmp.preferredHeight + pad * 2f;
+            tmp.rectTransform.sizeDelta = new Vector2(width - pad * 2f, height - pad * 2f);
+
+            var bg = board.transform.Find(name + "_BG");
+            if (bg != null) bg.localScale = new Vector3(width, height, 1f);
+
+            float y = bottom ? -halfH + height * 0.5f + 0.2f
+                             :  halfH - height * 0.5f - 0.2f;
+
+            board.transform.SetParent(cam.transform, false);
+            board.transform.localPosition = new Vector3(0f, y, 1f);
             return board;
         }
 
@@ -205,7 +241,7 @@ namespace GDCBuild
                 hud.transform.SetParent(cam.transform, false);
                 hud.transform.localPosition = new Vector3(halfW - 0.3f - box.x * 0.5f,
                                                           halfH - 0.3f - box.y * 0.5f, 1f);
-                hud.gameObject.AddComponent<HudDisplay>();
+                hud.gameObject.AddComponent<HudDisplay>().Refresh();   // 先填好，編輯模式看得到
 
                 // 過關橫幅：平常空白，過關時才顯示
                 var banner = Text("ClearBanner", "", Vector2.zero, new Vector2(halfW * 1.6f, 2f),

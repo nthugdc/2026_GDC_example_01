@@ -16,8 +16,7 @@ namespace GDCBuild
         {
             var scene = GDCSceneKit.NewScene(new Vector2(6f, 2f), 7.5f);
 
-            GDCSceneKit.Board("GuideBoard", BoardText,
-                              new Vector2(6f, 8.2f), new Vector2(24f, 3.4f), 3.4f);
+            GDCSceneKit.BoardOnCamera("GuideBoard", BoardText, 3.4f);
 
             GDCSceneKit.PlatformTop("StartPlatform", -8f, -2f, 0f);
             GDCSceneKit.PlatformTop("GoalPlatform", 26f, 34f, 0f);
@@ -37,27 +36,27 @@ namespace GDCBuild
             GDCSceneKit.Save(scene, GDCSceneKit.ScenePath("Ch6_Create", answer));
         }
 
-        const float ShelfY = -4.0f;   // 素材擺放高度（要在攝影機看得到的範圍內）
+        const float ShelfY = -0.6f;   // 素材擺放高度（畫面下緣留給引導看板）
 
         /// <summary>素材倉庫：擺在畫面下方，學生 Ctrl+D 複製出來用。</summary>
         static void BuildWarehouse()
         {
             var root = new GameObject("Warehouse");
-            root.transform.position = new Vector2(6f, ShelfY);
+            root.transform.position = new Vector2(9f, ShelfY);
 
             GDCSceneKit.Text("WarehouseTitle", "素材倉庫：選一個按 Ctrl+D 複製，再拖到你要的位置",
-                             new Vector2(6f, -2.9f), new Vector2(20f, 0.8f),
+                             new Vector2(9f, 0.9f), new Vector2(20f, 0.8f),
                              3.4f, GDCPalette.TextDim, GDCSceneKit.OrderObject,
                              TMPro.TextAlignmentOptions.Center)
                         .transform.SetParent(root.transform, true);
 
             //     物件名稱（英文）        看板顯示   圖形            顏色
-            Sample(root, "Sample_Platform",     "平台",   "Square",        GDCPalette.Platform, -4f, new Vector2(3f, 0.6f),   true,  false);
-            Sample(root, "Sample_Box",          "木箱",   "RoundedSquare", GDCPalette.Box,       1f, new Vector2(1f, 1f),     true,  true);
-            Sample(root, "Sample_Coin",         "金幣",   "Star",          GDCPalette.Coin,      4f, new Vector2(0.6f, 0.6f), true,  false);
-            Sample(root, "Sample_Spike",        "尖刺",   "Triangle",      GDCPalette.Hazard,    7f, new Vector2(0.8f, 0.8f), true,  false);
-            Sample(root, "Sample_GrapplePoint", "鉤點",   "Ring",          GDCPalette.Grapple,  10f, new Vector2(0.9f, 0.9f), true,  false);
-            Sample(root, "Sample_GoalZone",     "終點區", "Square",        GDCPalette.Goal,     13f, new Vector2(1.4f, 1.4f), true,  false);
+            Sample(root, "Sample_Platform",     "平台",   "Square",        GDCPalette.Platform,  1f, new Vector2(3f, 0.6f),   true,  false);
+            Sample(root, "Sample_Box",          "木箱",   "RoundedSquare", GDCPalette.Box,       5f, new Vector2(1f, 1f),     true,  true);
+            Sample(root, "Sample_Coin",         "金幣",   "Star",          GDCPalette.Coin,      8f, new Vector2(0.6f, 0.6f), true,  false);
+            Sample(root, "Sample_Spike",        "尖刺",   "Triangle",      GDCPalette.Hazard,   11f, new Vector2(0.8f, 0.8f), true,  false);
+            Sample(root, "Sample_GrapplePoint", "鉤點",   "Ring",          GDCPalette.Grapple,  14f, new Vector2(0.9f, 0.9f), true,  false);
+            Sample(root, "Sample_GoalZone",     "終點區", "Square",        GDCPalette.Goal,     17f, new Vector2(1.4f, 1.4f), true,  false);
         }
 
         static void Sample(GameObject root, string name, string label, string sprite, Color color,
@@ -66,11 +65,18 @@ namespace GDCBuild
             var go = GDCSceneKit.Shape(name, sprite, color, new Vector2(x, ShelfY), size,
                                        GDCSceneKit.OrderObject);
             if (collider)  go.AddComponent<BoxCollider2D>();
-            if (rigidbody) go.AddComponent<Rigidbody2D>().freezeRotation = true;
+            if (rigidbody)
+            {
+                // 倉庫裡先設成 Static，才不會沒有地板就掉下去。
+                // 學生複製出去之後要自己改回 Dynamic（Docs/Ch6.md 有說明）。
+                var srb = go.AddComponent<Rigidbody2D>();
+                srb.bodyType       = RigidbodyType2D.Static;
+                srb.freezeRotation = true;
+            }
             go.transform.SetParent(root.transform, true);
 
             GDCSceneKit.Text(name + "_Label", label,
-                             new Vector2(x, ShelfY - 1.1f), new Vector2(3f, 0.7f),
+                             new Vector2(x, ShelfY - 1.0f), new Vector2(3f, 0.7f),
                              3f, GDCPalette.TextDim, GDCSceneKit.OrderObject,
                              TMPro.TextAlignmentOptions.Center)
                         .transform.SetParent(root.transform, true);

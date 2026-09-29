@@ -18,10 +18,9 @@ namespace GDCBuild
 
         public static void Build(bool answer = false)
         {
-            var scene = GDCSceneKit.NewScene(new Vector2(2.7f, 2f), 6f);
+            var scene = GDCSceneKit.NewScene(new Vector2(2.7f, 1.3f), 6f);
 
-            GDCSceneKit.Board("GuideBoard", BoardText,
-                              new Vector2(2.5f, 6.0f), new Vector2(18.5f, 3.8f), 3.4f);
+            GDCSceneKit.BoardOnCamera("GuideBoard", BoardText, 3.4f);
 
             GDCSceneKit.PlatformTop("Ground", -8f, 36f, 0f);
 
