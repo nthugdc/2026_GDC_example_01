@@ -27,13 +27,13 @@ public class Ch5_Grapple_Answer : MonoBehaviour
 
     void Update()
     {
-        var mouse = Mouse.current;
+        Mouse mouse = Mouse.current;
         if (mouse == null) return;
 
         if (mouse.leftButton.wasPressedThisFrame)  TryGrapple();
         if (mouse.leftButton.wasReleasedThisFrame) Release();
 
-        var kb = Keyboard.current;
+        Keyboard kb = Keyboard.current;
         if (joint.enabled && kb != null && kb.wKey.isPressed)
             joint.distance = Mathf.Max(minRopeLength, joint.distance - ropeSpeed * Time.deltaTime);
 

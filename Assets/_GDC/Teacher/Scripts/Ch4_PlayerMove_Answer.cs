@@ -14,21 +14,36 @@ public class Ch4_PlayerMove_Answer : MonoBehaviour
     public LayerMask groundLayers;
 
     Rigidbody2D rb;
+    float moveInput;
+    bool  jumpRequested;
 
-    void Awake() { rb = GetComponent<Rigidbody2D>(); }
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
 
     void Update()
     {
-        var kb = Keyboard.current;
+        Keyboard kb = Keyboard.current;
         if (kb == null) return;
 
-        float move = 0f;
-        if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  move = -1f;
-        if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) move =  1f;
-        rb.linearVelocityX = move * moveSpeed;
+        moveInput = 0f;
+        if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  moveInput = -1f;
+        if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) moveInput =  1f;
 
-        if (kb.spaceKey.wasPressedThisFrame && IsGrounded())
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        if (kb.spaceKey.wasPressedThisFrame) jumpRequested = true;
+    }
+
+    void FixedUpdate()
+    {
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+
+        if (jumpRequested)
+        {
+            jumpRequested = false;
+            if (IsGrounded())
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
     }
 
     bool IsGrounded()
@@ -36,7 +51,7 @@ public class Ch4_PlayerMove_Answer : MonoBehaviour
         Vector2 origin = (Vector2)transform.position + Vector2.down * feetOffset;
         Debug.DrawRay(origin, Vector2.down * checkDistance, Color.red);
 
-        // 解答 4-A
+        // 解答 4-A：hit 是 struct，不會是 null，要看 hit.collider
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, checkDistance, groundLayers);
         return hit.collider != null;
     }

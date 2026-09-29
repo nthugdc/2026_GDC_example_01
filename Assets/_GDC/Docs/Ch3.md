@@ -51,16 +51,30 @@
 
 ## 練習 3：LayerMask 感應門（紫色門）
 
-`Ch3_ProximityDoor.cs` 的 TODO 3-A：
+`Ch3_ProximityDoor.cs` 的 TODO 3-A 要用 `Physics2D.OverlapCircle`：
 
-```csharp
-near = Physics2D.OverlapCircle(transform.position, radius, detectLayers) != null;
+```
+Collider2D OverlapCircle(Vector2 point, float radius, int layerMask)
 ```
 
-寫完之後，**還要在 Inspector 把 Detect Layers 勾成 Player**。
+| 參數 | 意思 |
+|---|---|
+| `point` | 圓心的**世界座標**。想用自己的位置就傳 `transform.position` |
+| `radius` | 半徑（世界單位） |
+| `layerMask` | 只在乎哪些圖層。不給的話所有圖層都算 |
 
-`OverlapCircle(中心, 半徑, 要偵測哪些圖層)` = 「以這個點為圓心畫一個圓，
-圈到指定圖層的東西就回傳它，沒圈到就回傳 null」。
+意思是「在 `point` 畫一個半徑 `radius` 的圓，看看圓內有沒有碰撞器」。
+
+⚠️ **回傳的是 `Collider2D`，不是 `bool`：**
+
+- 圈到東西 → 回傳其中**一個**碰到的碰撞器
+- 沒圈到 → 回傳 `null`
+
+所以要得到「有沒有」這個 true / false，你得自己跟 `null` 比較一下。
+（想一次拿到全部，用 `OverlapCircleAll`，它回傳 `Collider2D[]`。）
+
+寫完之後，**還要在 Inspector 把 Detect Layers 勾成 Player**，
+不然那個 LayerMask 是空的，代表「什麼都不找」，玩家走再近也偵測不到。
 
 選取門的時候，Scene 視窗會畫出青色圓圈顯示偵測範圍，可以邊調 Radius 邊看。
 

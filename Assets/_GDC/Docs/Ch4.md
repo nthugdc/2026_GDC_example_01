@@ -19,14 +19,33 @@
 - 敵人**看得到玩家嗎**（往玩家射，中間有牆就看不到）
 - 滑鼠**點到哪個物件**（從攝影機往滑鼠方向射）
 
-```csharp
-RaycastHit2D hit = Physics2D.Raycast(起點, 方向, 最長距離, 只偵測哪些圖層);
-
-hit.collider   // 打到的東西，沒打到就是 null ← 最常用
-hit.point      // 打中的座標
-hit.distance   // 打了多遠
-hit.normal     // 打中表面的方向
 ```
+RaycastHit2D Physics2D.Raycast(Vector2 origin, Vector2 direction,
+                               float distance, int layerMask)
+```
+
+| 參數 | 意思 |
+|---|---|
+| `origin` | 起點的世界座標 |
+| `direction` | 方向。**只看方向不看長短**，`Vector2.down` 就是正下方 |
+| `distance` | 最遠射多遠。超過這個距離就算沒打到 |
+| `layerMask` | 只在乎哪些圖層（跟第 3 章的 LayerMask 一樣） |
+
+### 回傳的 `hit` 是什麼？
+
+`RaycastHit2D` 是一份「這一次射擊的**結果報告**」。
+它是 **struct 不是物件**，所以「沒打到」的時候**不會是 `null`**，
+而是一份內容全空的報告。要判斷有沒有打到，看它的欄位：
+
+| 欄位 | 內容 |
+|---|---|
+| `hit.collider` | 打到的碰撞器。**沒打到時是 `null`** ← 用這個判斷 |
+| `hit.point` | 打到的那個點的世界座標 |
+| `hit.distance` | 從起點到打中處的距離 |
+| `hit.normal` | 被打到的表面朝哪個方向 |
+
+> ⚠️ 不要寫 `if (hit != null)`。那永遠都成立，因為 struct 不會是 `null`。
+> 這是初學 Raycast 最常見的錯誤。
 
 ---
 
@@ -34,14 +53,12 @@ hit.normal     // 打中表面的方向
 
 問題在於「按空白鍵就跳」，沒有檢查腳下有沒有地板。
 
-打開 `Ch4_PlayerMove.cs`，看 `IsGrounded()`：
+打開 `Ch4_PlayerMove.cs`，看 `IsGrounded()`。
+起點 `origin` 已經幫你算好了（腳底的位置），你要做的是：
+從那裡往**正下方**射一條長度 `checkDistance` 的射線，只偵測 `groundLayers`，
+然後回傳「有沒有打到東西」。
 
-```csharp
-RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, checkDistance, groundLayers);
-return hit.collider != null;
-```
-
-寫完把最後那行 `return true;` 刪掉。
+上面的表格寫了該看 `hit` 的哪個欄位。寫完把最後那行 `return true;` 刪掉。
 
 **然後在 Inspector 把 Ground Layers 勾成 Ground。**
 
@@ -59,13 +76,19 @@ return hit.collider != null;
 
 ## 任務二：雷射感應門（TODO 4-B）
 
-打開 `Ch4_LaserSensor.cs`：
+打開 `Ch4_LaserSensor.cs`。跟任務一是同一個函式，差別只有三個地方：
 
-```csharp
-hit = Physics2D.Raycast(transform.position, dir, maxDistance, detectLayers);
-```
+- 起點是**這台發射器自己**（`transform.position`）
+- 距離用 `maxDistance`
+- 圖層用 `detectLayers` —— 這次要勾的是 **Player**，不是 Ground
 
-**然後在 Inspector 把 Detect Layers 勾成 Player。**
+這台發射器固定裝在天花板上朝正下方射，所以方向一樣是 `Vector2.down`。
+
+**寫完記得在 Inspector 把 Detect Layers 勾成 Player。**
+
+> 如果不給 `layerMask` 會怎樣？射線會打到它遇到的第一個東西 ——
+> 包括地板、金幣、甚至門本身，那扇門就永遠不會為了玩家打開。
+> LayerMask 讓射線「只看得見」你在乎的東西。
 
 畫線的部分已經幫你寫好了：雷射沒打到東西是紅色，打到玩家會變綠色，
 同時門會升起來。走到雷射下面試試。

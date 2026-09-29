@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>第 1 章的參考解答（教師版場景使用）。學生請改自己的 Ch1_PlayerMove.cs。</summary>
+/// <summary>第 1 章 TODO 1-A ~ 1-C 的參考解答。</summary>
 public class Ch1_PlayerMove_Answer : MonoBehaviour
 {
     [Header("移動")]
@@ -11,6 +11,8 @@ public class Ch1_PlayerMove_Answer : MonoBehaviour
     public float jumpForce = 11f;
 
     Rigidbody2D rb;
+    float moveInput;
+    bool  jumpRequested;
 
     void Awake()
     {
@@ -19,20 +21,27 @@ public class Ch1_PlayerMove_Answer : MonoBehaviour
 
     void Update()
     {
-        var kb = Keyboard.current;
+        Keyboard kb = Keyboard.current;
         if (kb == null) return;
 
-        float move = 0f;
+        moveInput = 0f;
 
         // 解答 1-A
-        if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  move = -1f;
-        if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) move =  1f;
+        if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  moveInput = -1f;
+        if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) moveInput =  1f;
 
-        // 解答 1-B（Unity 6 的寫法：linearVelocityX）
-        rb.linearVelocityX = move * moveSpeed;
+        if (kb.spaceKey.wasPressedThisFrame) jumpRequested = true;
+    }
 
-        if (kb.spaceKey.wasPressedThisFrame)
+    void FixedUpdate()
+    {
+        // 解答 1-B：保留原本的 y，不然跳到一半會被歸零變成瞬間掉下來
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+
+        if (jumpRequested)
         {
+            jumpRequested = false;
+
             // 解答 1-C
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }

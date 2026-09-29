@@ -27,7 +27,7 @@ namespace GDCBuild
 
         // Tag 本身先建好（沒建好的話 CompareTag 會直接丟例外，對初學者太不友善）；
         // 第 2 章的練習是「把正確的 Tag 指派給正確的物件」，加分題才是自己新增 Bonus tag。
-        static readonly string[] Tags = { "Player", "Coin", "Spike", "Goal", "Box", "GrapplePoint", "Bounce" };
+        static readonly string[] Tags = { "Player", "Coin", "Spike", "Goal", "Box", "GrapplePoint", "Bounce", "SensorPad" };
 
         public static void Run()
         {

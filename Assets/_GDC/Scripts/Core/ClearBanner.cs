@@ -14,7 +14,7 @@ public class ClearBanner : MonoBehaviour
         if (label == null) label = GetComponent<TMP_Text>();
         if (label == null) return;
 
-        var gm = GameManager.Instance;
+        GameManager gm = GameManager.Instance;
         label.text = (gm != null && gm.isCleared) ? gm.statusMessage : "";
     }
 }

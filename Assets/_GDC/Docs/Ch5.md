@@ -17,29 +17,47 @@
 2. **那個方向上有東西可以鉤嗎？** → `Physics2D.Raycast`
 3. **有的話，把繩子接上去** → `DistanceJoint2D`
 
+## 先認識 DistanceJoint2D
+
+它的工作是「把我和某個點之間的距離限制住」，就像一條繩子。
+這一章你會動到的欄位只有這幾個：
+
+| 欄位 | 意思 |
+|---|---|
+| `enabled` | 繩子存不存在。`false` = 沒鉤住，`true` = 正在吊著 |
+| `connectedBody` | 繩子另一端綁在哪個 Rigidbody2D 上。**留 `null` 代表綁在世界上的固定點**，正是我們要的 |
+| `connectedAnchor` | 那個固定點的座標。因為 `connectedBody` 是 `null`，這裡填的是**世界座標** |
+| `distance` | 繩子的長度 |
+| `autoConfigureDistance` | `true` 的話 Unity 每幀會自己改 `distance` ← **坑 1**，已經幫你關掉 |
+| `maxDistanceOnly` | `true` = 只限制最遠距離（像繩子）；`false` = 距離鎖死（像鐵棍） |
+
 ### TODO 5-A：滑鼠螢幕座標 → 世界座標
 
-```csharp
-Vector3 sp = Mouse.current.position.ReadValue();
-sp.z = -Camera.main.transform.position.z;
-Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(sp);
-```
+`Mouse.current.position.ReadValue()` 給你的是**螢幕座標**，單位是像素，左下角是 (0, 0)。
+這個數字不能直接拿來跟場景裡的物件比較，要先用
+`Camera.main.ScreenToWorldPoint()` 換算成世界座標。
+
+⚠️ 它的參數是 `Vector3`，第三個值 `z` 代表「離攝影機多遠」——
+這就是**坑 2**，往下看。
 
 （記得把上面那行 `Vector2 mouseWorld = transform.position;` 改掉，不然變數會重複宣告。）
 
 ### TODO 5-B：射線
 
-```csharp
-hit = Physics2D.Raycast(transform.position, dir, maxDistance, grappleLayers);
-```
+跟第 4 章同一個 `Physics2D.Raycast`。起點是自己、距離用 `maxDistance`、
+圖層用 `grappleLayers`。
+
+方向要怎麼算？你有「自己的位置」和「滑鼠的世界座標」兩個點，
+需要的是一個**長度為 1 的方向向量** —— 想想 `.normalized`。
+
+沒打到任何東西的話就直接 `return`，不要鉤。
 
 ### TODO 5-C：接上繩子
 
-```csharp
-joint.connectedAnchor = hit.point;
-joint.distance = Vector2.Distance(transform.position, hit.point);
-joint.enabled = true;
-```
+看上面那張表，你需要設定三件事：**接點在哪**、**繩子多長**、以及**讓它開始作用**。
+
+繩長要設成「現在的我」到「鉤中的那個點」之間的距離。
+`hit.point` 是打中的座標，`Vector2.Distance(a, b)` 算兩點距離。
 
 **最後在 Inspector 把 Grapple Layers 勾成 Grappleable。**
 

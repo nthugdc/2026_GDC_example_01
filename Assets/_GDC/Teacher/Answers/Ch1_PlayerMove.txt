@@ -1,27 +1,49 @@
 第 1 章 · Ch1_PlayerMove.cs 參考解答
 ====================================
 
-TODO 1-A ─ 讀取左右輸入
-------------------------
-    if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  move = -1f;
-    if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) move =  1f;
+TODO 1-A ─ 讀取左右輸入（在 Update 裡）
+----------------------------------------
+    if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  moveInput = -1f;
+    if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) moveInput =  1f;
 
 
-TODO 1-B ─ 設定水平速度
-------------------------
-    rb.linearVelocityX = move * moveSpeed;
+TODO 1-B ─ 設定水平速度（在 FixedUpdate 裡）
+---------------------------------------------
+    rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
-    ⚠ Unity 6 已經把 velocity 改名成 linearVelocity。
-      網路教學上的 rb.velocity.x 在這個版本會編譯失敗。
-      也可以寫成：rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
+    為什麼要加 new？
+      Vector2 是 struct（值型別）。rb.linearVelocity 回傳的是一份「複本」，
+      所以 rb.linearVelocity.x = 5f 改到的是複本，對真正的速度毫無影響 ——
+      Unity 乾脆讓這種寫法直接編譯失敗。要換速度就得整個給一個新的 Vector2。
+
+    為什麼 y 要填 rb.linearVelocity.y 而不是 0？
+      填 0 等於每 1/50 秒就把垂直速度歸零。
+      結果是：跳不起來（剛給的向上速度馬上被清掉），而且掉落時像貼著牆慢慢滑。
+      學生可以故意改成 0f 跑一次，這個錯誤很值得親眼看一遍。
+
+    也可以只改單軸：rb.linearVelocityX = moveInput * moveSpeed;
+    效果一樣，但用 new Vector2 的寫法比較能看懂「速度是一個向量」。
 
 
-TODO 1-C ─ 跳躍
-----------------
+TODO 1-C ─ 跳躍（在 FixedUpdate 裡）
+-------------------------------------
     rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
 
     ForceMode2D.Impulse = 瞬間給一次力（適合跳躍）
     ForceMode2D.Force   = 持續施力（適合推進器、風）
+
+    Vector2.up 就是 new Vector2(0f, 1f)，乘上 jumpForce 就是「往上 jumpForce 這麼多」。
+
+
+為什麼要分成 Update 和 FixedUpdate？
+------------------------------------
+    Update       每畫一張畫面一次，張數浮動 → 讀輸入
+    FixedUpdate  固定每秒 50 次           → 改物理
+
+    跳躍用的 wasPressedThisFrame 只有「按下去的那一幀」是 true，
+    而那一幀不一定剛好是 FixedUpdate 執行的時機，直接寫在 FixedUpdate 會漏掉。
+    所以 Update 先用 jumpRequested 這個旗標把它記下來，
+    FixedUpdate 再拿去用、用完清成 false。這是業界的標準寫法。
 
 
 常見問題
@@ -34,6 +56,9 @@ A: 確認遊戲視窗有被點過（有焦點），而且你改的是掛在 Play
 
 Q: 出現「Input does not contain a definition for GetKeyDown」？
 A: 本專案只啟用新版 Input System。請用 Keyboard.current，不要用 Input.GetKeyDown。
+
+Q: 出現「Cannot modify the return value of Rigidbody2D.linearVelocity」？
+A: 你寫了 rb.linearVelocity.x = ???。看上面 TODO 1-B 的說明，要用 new Vector2。
 
 Q: 可以無限連跳，正常嗎？
 A: 正常，這是刻意留的 bug，第 4 章會用 Raycast 修好它。

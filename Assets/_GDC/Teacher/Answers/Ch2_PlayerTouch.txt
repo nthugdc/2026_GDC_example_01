@@ -28,6 +28,59 @@ TODO 2-C ─ 抵達終點
     }
 
 
+TODO 2-D ─ 站在感應板上（OnTriggerStay2D）
+-------------------------------------------
+    if (other.CompareTag("SensorPad"))
+    {
+        padSeconds += Time.deltaTime;
+        GameManager.Instance.statusMessage = "站在感應板上 " + padSeconds.ToString("F1") + " 秒";
+    }
+
+
+TODO 2-E ─ 離開感應板（OnTriggerExit2D）
+-----------------------------------------
+    if (other.CompareTag("SensorPad"))
+    {
+        other.GetComponent<SpriteRenderer>().color = padOffColor;
+        GameManager.Instance.statusMessage = "離開感應板，總共站了 " + padSeconds.ToString("F1") + " 秒";
+    }
+
+
+三個 Trigger 事件的差別
+------------------------
+    OnTriggerEnter2D   剛碰到的那一幀，呼叫「一次」
+    OnTriggerStay2D    只要還重疊著，「每一幀」都呼叫
+    OnTriggerExit2D    離開的那一幀，呼叫「一次」
+
+    播放時看 Inspector 上的 Pad Seconds：踩上去之後它會一直往上跳，
+    這就是 Stay 每幀都在執行的證據。Enter 只會在踩上去那一瞬間跑一次。
+
+    ⚠ Stay 每幀都跑，所以裡面不要放很重的運算，也不要在裡面加分
+      （會變成「站著不動就一直得分」）。要計時就像上面那樣累加 Time.deltaTime。
+
+
+other 是什麼？為什麼可以改到對方的顏色？
+-----------------------------------------
+    other 的型別是 Collider2D，是「碰到我的那個東西身上的碰撞器元件」，
+    它是一個元件，不是物件本身。
+
+    在 Unity 裡，拿到任何一個元件就能找到它所屬的物件與其他元件：
+        other.gameObject              → 那個東西本身
+        other.GetComponent<T>()       → 從它身上再拿出別的元件
+
+    所以 other.GetComponent<SpriteRenderer>().color = ... 的意思是
+    「從碰到我的那個碰撞器，找到它所屬物件的繪製元件，然後改它的顏色」。
+
+
+Destroy 的效果
+--------------
+    Destroy(other.gameObject)   整個物件從場景移除，會直接消失 ← 金幣要用這個
+    Destroy(other)              只移除那個碰撞器元件，物件還在，只是不再會被碰到
+    Destroy(物件, 3f)            3 秒後才刪除
+
+    刪除不是立刻發生，而是在這一幀結束後才真的執行。
+
+
 為什麼要用 CompareTag 而不是 other.tag == "Coin"？
 --------------------------------------------------
 1. CompareTag 比較快（不會產生垃圾記憶體）。

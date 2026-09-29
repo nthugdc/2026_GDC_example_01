@@ -30,19 +30,69 @@ Tag 就是**貼在物件上的一張名牌**，讓程式可以問：「我碰到
 
 ---
 
-## 任務二：把三個 TODO 填完
+## 任務二：把五個 TODO 填完
 
-```csharp
-if (other.CompareTag("Coin"))
-{
-    gm.AddScore(coinScore);
-    Destroy(other.gameObject);
-}
-```
+打開 `Ch2_PlayerTouch.cs`，**先看檔案最上方那一大段說明**。
+裡面寫了三個 Trigger 事件的差別、`other` 到底是什麼、`Destroy` 的效果，
+以及你可以呼叫 `GameManager` 與 `Respawner` 的哪些功能。
 
-`other` 是「碰到我的那個東西」，`other.gameObject` 就是它本身，`Destroy` 把它刪掉。
+| TODO | 事件 | 要做的事 |
+|---|---|---|
+| 2-A | Enter | 吃到金幣 → 加分、讓金幣消失 |
+| 2-B | Enter | 踩到尖刺 → 扣分、回到起點 |
+| 2-C | Enter | 抵達終點 → 過關 |
+| 2-D | **Stay** | 站在感應板上 → 累計停留秒數並顯示 |
+| 2-E | **Exit** | 離開感應板 → 把它的顏色變回去 |
 
-尖刺和終點請自己照樣寫，提示都在註解裡。
+2-D 和 2-E 在檔案裡有一段「已經幫你寫好」的 Enter 範例可以照著看。
+
+---
+
+## 觀念：`other` 是什麼？為什麼能改到對方的東西？
+
+`other` 的型別是 `Collider2D` —— 它是**碰到我的那個東西身上的碰撞器「元件」**，
+不是那個物件本身。這個區別很重要。
+
+在 Unity 裡，只要拿到任何一個元件，就能從它身上找到所屬的物件與其他元件：
+
+| 寫法 | 拿到什麼 |
+|---|---|
+| `other.gameObject` | 那個東西本身（GameObject） |
+| `other.gameObject.name` | 它在 Hierarchy 裡的名字 |
+| `other.CompareTag("Coin")` | 它的 Tag 是不是 Coin |
+| `other.GetComponent<SpriteRenderer>()` | 從它身上再拿出繪製元件 |
+
+所以「碰到感應板，然後改感應板的顏色」是做得到的 ——
+先從 `other` 找到它的 `SpriteRenderer`，再改那個元件的 `color`。
+**這是 Unity 裡最常用的一種寫法，之後你會一直用到。**
+
+---
+
+## 觀念：Destroy 到底刪掉了什麼？
+
+| 寫法 | 效果 |
+|---|---|
+| `Destroy(other.gameObject)` | 整個物件從場景移除，直接消失 ← 金幣要用這個 |
+| `Destroy(other)` | **只**移除那個碰撞器元件，物件還在，只是不再會被碰到 |
+| `Destroy(物件, 3f)` | 3 秒後才刪除 |
+
+刪除不是立刻發生的，而是在這一幀結束後才真的執行。
+
+---
+
+## 觀念：Enter / Stay / Exit 差在哪
+
+| 事件 | 呼叫時機 |
+|---|---|
+| `OnTriggerEnter2D` | 剛碰到的那一幀，呼叫**一次** |
+| `OnTriggerStay2D` | 只要還重疊著，**每一幀**都呼叫 |
+| `OnTriggerExit2D` | 離開的那一幀，呼叫**一次** |
+
+寫完 2-D 之後播放，盯著 Inspector 上的 **Pad Seconds** ——
+踩上感應板它就開始一直往上跳，這就是 Stay 每幀都在執行的證據。
+
+> ⚠️ 因為 Stay 每幀都跑，裡面**不要**直接加分，不然站著不動就能一直得分。
+> 要跟時間有關的東西，就像 2-D 那樣累加 `Time.deltaTime`。
 
 ---
 

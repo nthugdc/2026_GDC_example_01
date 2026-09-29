@@ -5,7 +5,6 @@ using UnityEngine;
 public class Ch4_LaserSensor_Answer : MonoBehaviour
 {
     [Header("射線設定")]
-    public Vector2 direction = Vector2.down;
     public float maxDistance = 6f;
     public LayerMask detectLayers;
 
@@ -18,7 +17,7 @@ public class Ch4_LaserSensor_Answer : MonoBehaviour
 
     LineRenderer line;
     Vector3 doorClosedPos;
-    float closeTimer;      // 還要維持開啟幾秒
+    float closeTimer;
 
     void Awake()
     {
@@ -28,21 +27,17 @@ public class Ch4_LaserSensor_Answer : MonoBehaviour
 
     void Update()
     {
-        Vector2 dir = direction.normalized;
-
         // 解答 4-B
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, maxDistance, detectLayers);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, maxDistance, detectLayers);
 
         bool detected = hit.collider != null;
 
         float length = detected ? hit.distance : maxDistance;
         line.positionCount = 2;
         line.SetPosition(0, transform.position);
-        line.SetPosition(1, transform.position + (Vector3)(dir * length));
+        line.SetPosition(1, transform.position + Vector3.down * length);
         line.startColor = line.endColor = detected ? Color.green : Color.red;
 
-        // 開關門：離開雷射後先等 closeDelay 秒，再用較慢的速度落下，
-        // 玩家才來得及跑過去（不然一離開射線門就砸下來）
         if (detected) closeTimer = closeDelay;
         else          closeTimer -= Time.deltaTime;
 

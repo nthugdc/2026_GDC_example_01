@@ -21,7 +21,7 @@ public class ChapterNavigator : MonoBehaviour
         Debug.Log("[GDC] 這是教師版場景（不在 Build Settings 裡），R / N / P 無法切換。" +
                   "請直接從 Project 視窗開啟你要的場景。");
 
-        var hud = FindFirstObjectByType<HudDisplay>();
+        HudDisplay hud = FindFirstObjectByType<HudDisplay>();
         if (hud != null) hud.controlsHint = "教師版場景：R / N / P 無法使用";
     }
 
@@ -30,7 +30,7 @@ public class ChapterNavigator : MonoBehaviour
         if (!navigable || isLoading) return;
 
         // 注意：本專案使用「新版 Input System」，所以不是 Input.GetKeyDown
-        var kb = Keyboard.current;
+        Keyboard kb = Keyboard.current;
         if (kb == null) return;
 
         if (kb.rKey.wasPressedThisFrame) Load(SceneManager.GetActiveScene().buildIndex);
